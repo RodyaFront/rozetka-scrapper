@@ -7,7 +7,7 @@ export default defineNuxtConfig({
 
   modules: ["@primevue/nuxt-module"],
 
-  css: ["~/assets/scss/index.scss"],
+  css: ["~/assets/scss/index.scss", "~/assets/css/main.css"],
 
   postcss: {
     plugins: {

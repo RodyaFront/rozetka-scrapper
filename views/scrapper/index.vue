@@ -3,6 +3,7 @@ import type { Product } from "~/server/services/scrapper";
 
 const pending = ref(false);
 const url = ref("");
+const isImageVisible = ref(false);
 
 const columns = ref([
   {
@@ -62,6 +63,20 @@ const scrapUrl = async () => {
   }
 
   products.value = data.value?.products || [];
+  // products.value = [
+  //   {
+  //     title: "Маршрутизатор TP-LINK Archer A64",
+  //     discount: null,
+  //     link: "https://rozetka.com.ua/ua/tp-link-archer-a64/p323263657/",
+  //     priceOld: 1599,
+  //     priceCurrent: 1399,
+  //     calculatedDiscount: "13",
+  //     rating: 94,
+  //     reviews: 644,
+  //     imageSrc:
+  //       "https://content2.rozetka.com.ua/goods/images/big_tile/372360252.jpg",
+  //   },
+  // ];
 };
 
 const getSeverity = (percent: number | null) => {
@@ -69,20 +84,26 @@ const getSeverity = (percent: number | null) => {
 
   if (percent >= 0 && percent <= 30) return "success";
 
-  if (percent > 30 && percent <= 70) return "warning";
+  if (percent > 30 && percent <= 70) return "warn";
 
-  if (percent > 70) return "error";
+  if (percent > 70) return "danger";
 
   return null;
 };
 </script>
 
 <template>
+  <!-- TODO -->
+  <!-- Фильтрация цены от и до -->
   <div class="scrap-page">
     <div class="scrap-form">
       <Card style="width: 25rem; overflow: hidden">
-        <template #title>Scrapper form</template>
-        <template #subtitle>Fill the form to scrap page</template>
+        <template #title>
+          <div class="text-base">Scrapper form</div>
+        </template>
+        <template #subtitle>
+          <div class="text-base">Fill the form to scrap page</div>
+        </template>
         <template #content>
           <InputText
             v-model="url"
@@ -99,6 +120,19 @@ const getSeverity = (percent: number | null) => {
               :loading="pending"
               @click="scrapUrl"
             />
+          </div>
+        </template>
+      </Card>
+      <Card class="w-[280px]">
+        <template #title>
+          <div class="text-base">Table settings</div>
+        </template>
+        <template #content>
+          <div class="flex flex-col gap-y-2">
+            <div class="flex items-center justify-between gap-x-2">
+              <div class="text-sm opacity-70">Show image preview</div>
+              <ToggleSwitch v-model="isImageVisible" />
+            </div>
           </div>
         </template>
       </Card>
@@ -169,10 +203,32 @@ const getSeverity = (percent: number | null) => {
           sortable=""
           :field="col.field"
           :header="col.header"
-          style="width: 400px"
         >
           <template #body="{ data }">
+            <template v-if="isImageVisible">
+              <div
+                style="
+                  width: 400px;
+                  overflow: auto;
+                  white-space: nowrap;
+                  scrollbar-width: none;
+                "
+                class="flex gap-4 items-center"
+              >
+                <Image
+                  :src="data.imageSrc"
+                  alt="Image"
+                  width="90"
+                  class="rounded-lg overflow-auto"
+                  preview
+                />
+                <div class="max-w-[200px] whitespace-pre-wrap">
+                  {{ data?.title }}
+                </div>
+              </div>
+            </template>
             <div
+              v-else
               style="
                 width: 400px;
                 overflow: auto;
